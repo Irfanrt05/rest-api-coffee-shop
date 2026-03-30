@@ -1,5 +1,5 @@
 CREATE TABLE menu (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY,
   name VARCHAR(100),
   price INT
 );
