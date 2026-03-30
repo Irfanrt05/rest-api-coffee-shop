@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const { v5: uuidv5 } = require("uuid");
+const NAMESPACE = uuidv5.DNS;
 
 // GET semua menu
 router.get("/", async (req, res) => {
@@ -18,14 +20,21 @@ router.get("/:id", async (req, res) => {
 
 // POST tambah menu
 router.post("/", async (req, res) => {
-  const { name, price } = req.body;
+  try {
+    const { name, price } = req.body;
 
-  const result = await pool.query(
-    "INSERT INTO menu (name, price) VALUES ($1, $2) RETURNING *",
-    [name, price],
-  );
+    const id = uuidv5(name + Date.now(), NAMESPACE);
 
-  res.json(result.rows[0]);
+    const result = await pool.query(
+      "INSERT INTO menu (id, name, price) VALUES ($1, $2, $3) RETURNING *",
+      [id, name, price],
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error tambah menu" });
+  }
 });
 
 // PUT update menu
